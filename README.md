@@ -88,3 +88,35 @@ kubectl get po -o custom-columns=name:.metadata.name,status:.status.phase,image:
 ```
 Lists pod names, status, and the image used by the first container.
 
+
+Certainly! Here's an enriched set of `kubectl` commands with concise descriptions for your README:
+
+## Verify AppArmor Support on Nodes:
+
+```bash
+kubectl get nodes -o=jsonpath=$'{range .items[*]}{@.metadata.name}: {.status.conditions[?(@.reason=="KubeletReady")].message}\n{end}'
+```
+Check for AppArmor support on nodes by inspecting the KubeletReady condition message.
+
+## List Container Images using Go-Template:
+
+```bash
+kubectl get pods --all-namespaces -o go-template --template="{{range .items}}{{range .spec.containers}}{{.image}} {{end}}{{end}}"
+```
+List container images across all namespaces using a Go-Template.
+
+## Get a List of Pods for Each Node:
+
+```bash
+kubectl get pods --all-namespaces -o json | jq '.items | map({podName: .metadata.name, nodeName: .spec.nodeName}) | group_by(.nodeName) | map({nodeName: .[0].nodeName, pods: map(.podName)})'
+```
+Retrieve a list of pods grouped by nodes, displaying node names and associated pods.
+
+## Check for Pods that are Currently Not Ready:
+
+```bash
+kubectl get pods --all-namespaces -o json | jq -r '.items[] | select(.status.phase != "Running" or ([.status.conditions[] | select(.type == "Ready" and .state == false)] | length) == 1) | .metadata.namespace + "/" + .metadata.name'
+```
+Identify pods that are not in the "Running" state or have readiness conditions set to false.
+
+
